@@ -1,4 +1,4 @@
-name: land Kernel Compiler
+name: test Kernel Compiler
 
 on: 
   push:
