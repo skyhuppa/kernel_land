@@ -1,4 +1,4 @@
-name: mi439 Kernel Compiler
+name: land Kernel Compiler
 
 on: 
   push:
