@@ -19,8 +19,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Building mi439 Kernel
       env:
-        TG_TOKEN: ${{ secrets.TG_TOKEN }}
-        TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }} 
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+        CHAT_ID: ${{ secrets.CHAT_ID }} 
       run: |
         wget https://raw.githubusercontent.com/skyhuppa/kernel_test_build/master/build.sh
         bash build.sh
