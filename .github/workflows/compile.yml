@@ -28,7 +28,7 @@ jobs:
     - name: Uploading Image.gz-dtb
       run: |
            curl -X POST "https://api.telegram.org/bot$BOT_TOKEN/sendMessage" -d chat_id="-922861774" -d "disable_web_page_preview=true" -d "parse_mode=html" -d text="Uploading Image.gz-dtb"
-           cd "${LDIR}/out/arch/arm64/boot/
+           cd '/__w/kernel_land/kernel_land/out'
            ZipName="[$(date +"%Y%m%d")]kernel.zip"
            sudo zip -r9 "$ZipName" . -x Image.gz-dtb
            ls > ls.txt
