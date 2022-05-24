@@ -23,7 +23,7 @@ jobs:
         CHAT_ID: ${{ secrets.CHAT_ID }} 
       run: |
         wget https://raw.githubusercontent.com/skyhuppa/kernel_test_build/master/build/land.sh
-        bash build.sh
+        bash land.sh
   
     - name: Uploading Image.gz-dtb
       run: |
