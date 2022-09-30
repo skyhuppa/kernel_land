@@ -82,17 +82,17 @@ walt_dec_cfs_rq_stats(struct cfs_rq *cfs_rq, struct task_struct *p) {}
  * (to see the precise effective timeslice length of your workload,
  *  run vmstat and monitor the context-switches (cs) field)
  */
-unsigned int sysctl_sched_latency = 5000000ULL;
-unsigned int normalized_sysctl_sched_latency = 5000000ULL;
+signed int sysctl_sched_latency = 5000000ULL;
+signed int normalized_sysctl_sched_latency = 5000000ULL;
 
-unsigned int sysctl_sched_is_big_little = 1;
-unsigned int sysctl_sched_sync_hint_enable = 1;
-unsigned int sysctl_sched_cstate_aware = 1;
+signed int sysctl_sched_is_big_little = 1;
+signed int sysctl_sched_sync_hint_enable = 1;
+signed int sysctl_sched_cstate_aware = 1;
 DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
 
 #ifdef CONFIG_SCHED_WALT
-unsigned int sysctl_sched_use_walt_cpu_util = 1;
-unsigned int sysctl_sched_use_walt_task_util = 1;
+signed int sysctl_sched_use_walt_cpu_util = 1;
+signed int sysctl_sched_use_walt_task_util = 1;
 #endif
 /*
  * The initial- and re-scaling of tunables is configurable
@@ -110,19 +110,19 @@ enum sched_tunable_scaling sysctl_sched_tunable_scaling
  * Minimal preemption granularity for CPU-bound tasks:
  * (default: 0.75 msec * (1 + ilog(ncpus)), units: nanoseconds)
  */
-unsigned int sysctl_sched_min_granularity = 750000ULL;
-unsigned int normalized_sysctl_sched_min_granularity = 750000ULL;
+signed int sysctl_sched_min_granularity = 750000ULL;
+signed int normalized_sysctl_sched_min_granularity = 750000ULL;
 
 /*
  * is kept at sysctl_sched_latency / sysctl_sched_min_granularity
  */
-static unsigned int sched_nr_latency = 8;
+static signed int sched_nr_latency = 8;
 
 /*
  * After fork, child runs first. If set to 0 (default) then
  * parent will (try to) run first.
  */
-unsigned int sysctl_sched_child_runs_first __read_mostly;
+signed int sysctl_sched_child_runs_first __read_mostly;
 
 /*
  * SCHED_OTHER wake-up granularity.
@@ -132,17 +132,17 @@ unsigned int sysctl_sched_child_runs_first __read_mostly;
  * and reduces their over-scheduling. Synchronous workloads will still
  * have immediate wakeup/sleep latencies.
  */
-unsigned int sysctl_sched_wakeup_granularity = 1000000UL;
-unsigned int normalized_sysctl_sched_wakeup_granularity = 1000000UL;
+signed int sysctl_sched_wakeup_granularity = 1000000UL;
+signed int normalized_sysctl_sched_wakeup_granularity = 1000000UL;
 
-const_debug unsigned int sysctl_sched_migration_cost = 500000UL;
+const_debug signed int sysctl_sched_migration_cost = 500000UL;
 
 /*
  * The exponential sliding  window over which load is averaged for shares
  * distribution.
  * (default: 10msec)
  */
-unsigned int __read_mostly sysctl_sched_shares_window = 10000000UL;
+signed int __read_mostly sysctl_sched_shares_window = 10000000UL;
 
 #ifdef CONFIG_CFS_BANDWIDTH
 /*
@@ -155,35 +155,35 @@ unsigned int __read_mostly sysctl_sched_shares_window = 10000000UL;
  *
  * default: 5 msec, units: microseconds
   */
-unsigned int sysctl_sched_cfs_bandwidth_slice = 5000UL;
+signed int sysctl_sched_cfs_bandwidth_slice = 5000UL;
 #endif
 
 /*
  * The margin used when comparing utilization with CPU capacity:
  * util * margin < capacity * 1024
  */
-unsigned int sysctl_sched_capacity_margin = 1078; /* ~5% margin */
-unsigned int sysctl_sched_capacity_margin_down = 1205; /* ~15% margin */
+signed int sysctl_sched_capacity_margin = 1078; /* ~5% margin */
+signed int sysctl_sched_capacity_margin_down = 1205; /* ~15% margin */
 #define capacity_margin sysctl_sched_capacity_margin
 
 #ifdef CONFIG_SCHED_WALT
-unsigned int sysctl_sched_min_task_util_for_boost_colocation;
+signed int sysctl_sched_min_task_util_for_boost_colocation;
 #endif
-static unsigned int __maybe_unused sched_small_task_threshold = 102;
+static signed int __maybe_unused sched_small_task_threshold = 102;
 
-static inline void update_load_add(struct load_weight *lw, unsigned long inc)
+static inline void update_load_add(struct load_weight *lw, signed long inc)
 {
 	lw->weight += inc;
 	lw->inv_weight = 0;
 }
 
-static inline void update_load_sub(struct load_weight *lw, unsigned long dec)
+static inline void update_load_sub(struct load_weight *lw, signed long dec)
 {
 	lw->weight -= dec;
 	lw->inv_weight = 0;
 }
 
-static inline void update_load_set(struct load_weight *lw, unsigned long w)
+static inline void update_load_set(struct load_weight *lw, signed long w)
 {
 	lw->weight = w;
 	lw->inv_weight = 0;
@@ -198,10 +198,10 @@ static inline void update_load_set(struct load_weight *lw, unsigned long w)
  *
  * This idea comes from the SD scheduler of Con Kolivas:
  */
-static unsigned int get_update_sysctl_factor(void)
+static signed int get_update_sysctl_factor(void)
 {
-	unsigned int cpus = min_t(unsigned int, num_online_cpus(), 8);
-	unsigned int factor;
+	signed int cpus = min_t(signed int, num_online_cpus(), 8);
+	signed int factor;
 
 	switch (sysctl_sched_tunable_scaling) {
 	case SCHED_TUNABLESCALING_NONE:
@@ -221,7 +221,7 @@ static unsigned int get_update_sysctl_factor(void)
 
 static void update_sysctl(void)
 {
-	unsigned int factor = get_update_sysctl_factor();
+	signed int factor = get_update_sysctl_factor();
 
 #define SET_SYSCTL(name) \
 	(sysctl_##name = (factor) * normalized_sysctl_##name)
@@ -241,7 +241,7 @@ void sched_init_granularity(void)
 
 static void __update_inv_weight(struct load_weight *lw)
 {
-	unsigned long w;
+	signed long w;
 
 	if (likely(lw->inv_weight))
 		return;
@@ -268,7 +268,7 @@ static void __update_inv_weight(struct load_weight *lw)
  * Or, weight =< lw.weight (because lw.weight is the runqueue weight), thus
  * weight/lw.weight <= 1, and therefore our shift will also be positive.
  */
-static u64 __calc_delta(u64 delta_exec, unsigned long weight, struct load_weight *lw)
+static u64 __calc_delta(u64 delta_exec, signed long weight, struct load_weight *lw)
 {
 	u64 fact = scale_load_down(weight);
 	int shift = WMULT_SHIFT;
@@ -671,7 +671,7 @@ int sched_proc_update_handler(struct ctl_table *table, int write,
 		loff_t *ppos)
 {
 	int ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
-	unsigned int factor = get_update_sysctl_factor();
+	signed int factor = get_update_sysctl_factor();
 
 	if (ret || !write)
 		return ret;
@@ -709,7 +709,7 @@ static inline u64 calc_delta_fair(u64 delta, struct sched_entity *se)
  *
  * p = (nr <= nl) ? l : l*nr/nl
  */
-static u64 __sched_period(unsigned long nr_running)
+static u64 __sched_period(signed long nr_running)
 {
 	if (unlikely(nr_running > sched_nr_latency))
 		return nr_running * sysctl_sched_min_granularity;
@@ -757,7 +757,7 @@ static u64 sched_vslice(struct cfs_rq *cfs_rq, struct sched_entity *se)
 
 #ifdef CONFIG_SMP
 static int select_idle_sibling(struct task_struct *p, int prev_cpu, int cpu);
-static unsigned long task_h_load(struct task_struct *p);
+static signed long task_h_load(struct task_struct *p);
 
 /*
  * We choose a half-life close to 1 scheduling period.
@@ -1108,19 +1108,19 @@ update_stats_curr_start(struct cfs_rq *cfs_rq, struct sched_entity *se)
  * calculated based on the tasks virtual memory size and
  * numa_balancing_scan_size.
  */
-unsigned int sysctl_numa_balancing_scan_period_min = 1000;
-unsigned int sysctl_numa_balancing_scan_period_max = 60000;
+signed int sysctl_numa_balancing_scan_period_min = 1000;
+signed int sysctl_numa_balancing_scan_period_max = 60000;
 
 /* Portion of address space to scan in MB */
-unsigned int sysctl_numa_balancing_scan_size = 256;
+signed int sysctl_numa_balancing_scan_size = 256;
 
 /* Scan @scan_size MB every @scan_period after an initial @scan_delay in ms */
-unsigned int sysctl_numa_balancing_scan_delay = 1000;
+signed int sysctl_numa_balancing_scan_delay = 1000;
 
-static unsigned int task_nr_scan_windows(struct task_struct *p)
+static signed int task_nr_scan_windows(struct task_struct *p)
 {
-	unsigned long rss = 0;
-	unsigned long nr_scan_pages;
+	signed long rss = 0;
+	signed long nr_scan_pages;
 
 	/*
 	 * Calculations based on RSS as non-present and empty pages are skipped
@@ -1139,24 +1139,24 @@ static unsigned int task_nr_scan_windows(struct task_struct *p)
 /* For sanitys sake, never scan more PTEs than MAX_SCAN_WINDOW MB/sec. */
 #define MAX_SCAN_WINDOW 2560
 
-static unsigned int task_scan_min(struct task_struct *p)
+static signed int task_scan_min(struct task_struct *p)
 {
-	unsigned int scan_size = READ_ONCE(sysctl_numa_balancing_scan_size);
-	unsigned int scan, floor;
-	unsigned int windows = 1;
+	signed int scan_size = READ_ONCE(sysctl_numa_balancing_scan_size);
+	signed int scan, floor;
+	signed int windows = 1;
 
 	if (scan_size < MAX_SCAN_WINDOW)
 		windows = MAX_SCAN_WINDOW / scan_size;
 	floor = 1000 / windows;
 
 	scan = sysctl_numa_balancing_scan_period_min / task_nr_scan_windows(p);
-	return max_t(unsigned int, floor, scan);
+	return max_t(signed int, floor, scan);
 }
 
-static unsigned int task_scan_max(struct task_struct *p)
+static signed int task_scan_max(struct task_struct *p)
 {
-	unsigned int smin = task_scan_min(p);
-	unsigned int smax;
+	signed int smin = task_scan_min(p);
+	signed int smax;
 
 	/* Watch for min being lower than max due to floor calculations */
 	smax = sysctl_numa_balancing_scan_period_max / task_nr_scan_windows(p);
@@ -1184,15 +1184,15 @@ struct numa_group {
 	int active_nodes;
 
 	struct rcu_head rcu;
-	unsigned long total_faults;
-	unsigned long max_faults_cpu;
+	signed long total_faults;
+	signed long max_faults_cpu;
 	/*
 	 * Faults_cpu is used to decide whether memory should move
 	 * towards the CPU. As a consequence, these stats are weighted
 	 * more by CPU use than by memory faults.
 	 */
-	unsigned long *faults_cpu;
-	unsigned long faults[0];
+	signed long *faults_cpu;
+	signed long faults[0];
 };
 
 /* Shared or private faults. */
@@ -1220,7 +1220,7 @@ static inline int task_faults_idx(enum numa_faults_stats s, int nid, int priv)
 	return NR_NUMA_HINT_FAULT_TYPES * (s * nr_node_ids + nid) + priv;
 }
 
-static inline unsigned long task_faults(struct task_struct *p, int nid)
+static inline signed long task_faults(struct task_struct *p, int nid)
 {
 	if (!p->numa_faults)
 		return 0;
@@ -1229,7 +1229,7 @@ static inline unsigned long task_faults(struct task_struct *p, int nid)
 		p->numa_faults[task_faults_idx(NUMA_MEM, nid, 1)];
 }
 
-static inline unsigned long group_faults(struct task_struct *p, int nid)
+static inline signed long group_faults(struct task_struct *p, int nid)
 {
 	if (!p->numa_group)
 		return 0;
@@ -1238,7 +1238,7 @@ static inline unsigned long group_faults(struct task_struct *p, int nid)
 		p->numa_group->faults[task_faults_idx(NUMA_MEM, nid, 1)];
 }
 
-static inline unsigned long group_faults_cpu(struct numa_group *group, int nid)
+static inline signed long group_faults_cpu(struct numa_group *group, int nid)
 {
 	return group->faults_cpu[task_faults_idx(NUMA_MEM, nid, 0)] +
 		group->faults_cpu[task_faults_idx(NUMA_MEM, nid, 1)];
@@ -1257,10 +1257,10 @@ static bool numa_is_active_node(int nid, struct numa_group *ng)
 }
 
 /* Handle placement on systems where not all nodes are directly connected. */
-static unsigned long score_nearby_nodes(struct task_struct *p, int nid,
+static signed long score_nearby_nodes(struct task_struct *p, int nid,
 					int maxdist, bool task)
 {
-	unsigned long score = 0;
+	signed long score = 0;
 	int node;
 
 	/*
@@ -1275,7 +1275,7 @@ static unsigned long score_nearby_nodes(struct task_struct *p, int nid,
 	 * which should be ok given the number of nodes rarely exceeds 8.
 	 */
 	for_each_online_node(node) {
-		unsigned long faults;
+		signed long faults;
 		int dist = node_distance(nid, node);
 
 		/*
@@ -1327,10 +1327,10 @@ static unsigned long score_nearby_nodes(struct task_struct *p, int nid,
  * larger multiplier, in order to group tasks together that are almost
  * evenly spread out between numa nodes.
  */
-static inline unsigned long task_weight(struct task_struct *p, int nid,
+static inline signed long task_weight(struct task_struct *p, int nid,
 					int dist)
 {
-	unsigned long faults, total_faults;
+	signed long faults, total_faults;
 
 	if (!p->numa_faults)
 		return 0;
@@ -1346,10 +1346,10 @@ static inline unsigned long task_weight(struct task_struct *p, int nid,
 	return 1000 * faults / total_faults;
 }
 
-static inline unsigned long group_weight(struct task_struct *p, int nid,
+static inline signed long group_weight(struct task_struct *p, int nid,
 					 int dist)
 {
-	unsigned long faults, total_faults;
+	signed long faults, total_faults;
 
 	if (!p->numa_group)
 		return 0;
@@ -1424,22 +1424,22 @@ bool should_numa_migrate_memory(struct task_struct *p, struct page * page,
 	       group_faults_cpu(ng, src_nid) * group_faults(p, dst_nid) * 4;
 }
 
-static unsigned long weighted_cpuload(const int cpu);
-static unsigned long source_load(int cpu, int type);
-static unsigned long target_load(int cpu, int type);
-static unsigned long capacity_of(int cpu);
+static signed long weighted_cpuload(const int cpu);
+static signed long source_load(int cpu, int type);
+static signed long target_load(int cpu, int type);
+static signed long capacity_of(int cpu);
 static long effective_load(struct task_group *tg, int cpu, long wl, long wg);
 
 /* Cached statistics for all CPUs within a node */
 struct numa_stats {
-	unsigned long nr_running;
-	unsigned long load;
+	signed long nr_running;
+	signed long load;
 
 	/* Total compute capacity of CPUs on a node */
-	unsigned long compute_capacity;
+	signed long compute_capacity;
 
 	/* Approximate capacity in terms of runnable tasks on a node */
-	unsigned long task_capacity;
+	signed long task_capacity;
 	int has_free_capacity;
 };
 
@@ -1449,7 +1449,7 @@ struct numa_stats {
 static void update_numa_stats(struct numa_stats *ns, int nid)
 {
 	int smt, cpu, cpus = 0;
-	unsigned long capacity;
+	signed long capacity;
 
 	memset(ns, 0, sizeof(*ns));
 	for_each_cpu(cpu, cpumask_of_node(nid)) {
@@ -1477,7 +1477,7 @@ static void update_numa_stats(struct numa_stats *ns, int nid)
 	smt = DIV_ROUND_UP(SCHED_CAPACITY_SCALE * cpus, ns->compute_capacity);
 	capacity = cpus / smt; /* cores */
 
-	ns->task_capacity = min_t(unsigned, capacity,
+	ns->task_capacity = min_t(signed, capacity,
 		DIV_ROUND_CLOSEST(ns->compute_capacity, SCHED_CAPACITY_SCALE));
 	ns->has_free_capacity = (ns->nr_running < ns->task_capacity);
 }
@@ -1752,7 +1752,7 @@ static int task_numa_migrate(struct task_struct *p)
 		.best_cpu = -1,
 	};
 	struct sched_domain *sd;
-	unsigned long taskweight, groupweight;
+	signed long taskweight, groupweight;
 	int nid, ret, dist;
 	long taskimp, groupimp;
 
@@ -1874,7 +1874,7 @@ static int task_numa_migrate(struct task_struct *p)
 /* Attempt to migrate a task to a CPU on the preferred node. */
 static void numa_migrate_preferred(struct task_struct *p)
 {
-	unsigned long interval = HZ;
+	signed long interval = HZ;
 
 	/* This task has no NUMA fault statistics yet */
 	if (unlikely(p->numa_preferred_nid == -1 || !p->numa_faults))
@@ -1900,7 +1900,7 @@ static void numa_migrate_preferred(struct task_struct *p)
  */
 static void numa_group_count_active_nodes(struct numa_group *numa_group)
 {
-	unsigned long faults, max_faults = 0;
+	signed long faults, max_faults = 0;
 	int nid, active_nodes = 0;
 
 	for_each_online_node(nid) {
@@ -1936,14 +1936,14 @@ static void numa_group_count_active_nodes(struct numa_group *numa_group)
  * Otherwise, decrease the scan period.
  */
 static void update_task_scan_period(struct task_struct *p,
-			unsigned long shared, unsigned long private)
+			signed long shared, signed long private)
 {
-	unsigned int period_slot;
+	signed int period_slot;
 	int ratio;
 	int diff;
 
-	unsigned long remote = p->numa_faults_locality[0];
-	unsigned long local = p->numa_faults_locality[1];
+	signed long remote = p->numa_faults_locality[0];
+	signed long local = p->numa_faults_locality[1];
 
 	/*
 	 * If there were no record hinting faults then either the task is
@@ -2047,7 +2047,7 @@ static int preferred_group_nid(struct task_struct *p, int nid)
 	 * both the node itself, and on nearby nodes.
 	 */
 	if (sched_numa_topology_type == NUMA_GLUELESS_MESH) {
-		unsigned long score, max_score = 0;
+		signed long score, max_score = 0;
 		int node, max_node = nid;
 
 		dist = sched_max_numa_distance;
@@ -2073,7 +2073,7 @@ static int preferred_group_nid(struct task_struct *p, int nid)
 	 */
 	nodes = node_online_map;
 	for (dist = sched_max_numa_distance; dist > LOCAL_DISTANCE; dist--) {
-		unsigned long max_faults = 0;
+		signed long max_faults = 0;
 		nodemask_t max_group = NODE_MASK_NONE;
 		int a, b;
 
@@ -2082,7 +2082,7 @@ static int preferred_group_nid(struct task_struct *p, int nid)
 			continue;
 
 		for_each_node_mask(a, nodes) {
-			unsigned long faults = 0;
+			signed long faults = 0;
 			nodemask_t this_group;
 			nodes_clear(this_group);
 
@@ -2118,9 +2118,9 @@ static int preferred_group_nid(struct task_struct *p, int nid)
 static void task_numa_placement(struct task_struct *p)
 {
 	int seq, nid, max_nid = -1, max_group_nid = -1;
-	unsigned long max_faults = 0, max_group_faults = 0;
-	unsigned long fault_types[2] = { 0, 0 };
-	unsigned long total_faults;
+	signed long max_faults = 0, max_group_faults = 0;
+	signed long fault_types[2] = { 0, 0 };
+	signed long total_faults;
 	u64 runtime, period;
 	spinlock_t *group_lock = NULL;
 
@@ -2149,7 +2149,7 @@ static void task_numa_placement(struct task_struct *p)
 	for_each_online_node(nid) {
 		/* Keep track of the offsets in numa_faults array */
 		int mem_idx, membuf_idx, cpu_idx, cpubuf_idx;
-		unsigned long faults = 0, group_faults = 0;
+		signed long faults = 0, group_faults = 0;
 		int priv;
 
 		for (priv = 0; priv < NR_NUMA_HINT_FAULT_TYPES; priv++) {
@@ -2247,8 +2247,8 @@ static void task_numa_group(struct task_struct *p, int cpupid, int flags,
 	int i;
 
 	if (unlikely(!p->numa_group)) {
-		unsigned int size = sizeof(struct numa_group) +
-				    4*nr_node_ids*sizeof(unsigned long);
+		signed int size = sizeof(struct numa_group) +
+				    4*nr_node_ids*sizeof(signed long);
 
 		grp = kzalloc(size, GFP_KERNEL | __GFP_NOWARN);
 		if (!grp)
@@ -2354,8 +2354,8 @@ no_join:
 void task_numa_free(struct task_struct *p, bool final)
 {
 	struct numa_group *grp = p->numa_group;
-	unsigned long *numa_faults = p->numa_faults;
-	unsigned long flags;
+	signed long *numa_faults = p->numa_faults;
+	signed long flags;
 	int i;
 
 	if (!numa_faults)
@@ -2478,13 +2478,13 @@ static void reset_ptenuma_scan(struct task_struct *p)
  */
 void task_numa_work(struct callback_head *work)
 {
-	unsigned long migrate, next_scan, now = jiffies;
+	signed long migrate, next_scan, now = jiffies;
 	struct task_struct *p = current;
 	struct mm_struct *mm = p->mm;
 	u64 runtime = p->se.sum_exec_runtime;
 	struct vm_area_struct *vma;
-	unsigned long start, end;
-	unsigned long nr_pte_updates = 0;
+	signed long start, end;
+	signed long nr_pte_updates = 0;
 	long pages, virtpages;
 
 	SCHED_WARN_ON(p != container_of(work, struct task_struct, numa_work));
@@ -2736,7 +2736,7 @@ static inline long calc_cfs_shares(struct cfs_rq *cfs_rq, struct task_group *tg)
 # endif /* CONFIG_SMP */
 
 static void reweight_entity(struct cfs_rq *cfs_rq, struct sched_entity *se,
-			    unsigned long weight)
+			    signed long weight)
 {
 	if (se->on_rq) {
 		/* commit outstanding execution time */
@@ -2852,7 +2852,7 @@ static inline int per_task_boost(struct task_struct *p)
  */
 static __always_inline u64 decay_load(u64 val, u64 n)
 {
-	unsigned int local_n;
+	signed int local_n;
 
 	if (!n)
 		return val;
@@ -2933,12 +2933,12 @@ static u32 __compute_runnable_contrib(u64 n)
  */
 static __always_inline int
 __update_load_avg(u64 now, int cpu, struct sched_avg *sa,
-		  unsigned long weight, int running, struct cfs_rq *cfs_rq)
+		  signed long weight, int running, struct cfs_rq *cfs_rq)
 {
 	u64 delta, scaled_delta, periods;
 	u32 contrib;
-	unsigned int delta_w, scaled_delta_w, decayed = 0;
-	unsigned long scale_freq, scale_cpu;
+	signed int delta_w, scaled_delta_w, decayed = 0;
+	signed long scale_freq, scale_cpu;
 
 	delta = now - sa->last_update_time;
 	/*
@@ -3324,7 +3324,7 @@ static inline void cfs_rq_util_change(struct cfs_rq *cfs_rq)
 }
 
 /*
- * Unsigned subtract and clamp on underflow.
+ * signed subtract and clamp on underflow.
  *
  * Explicitly do a load-store to ensure the intermediate value never hits
  * memory. This allows lockless observations without ever seeing the negative
@@ -3560,12 +3560,12 @@ void remove_entity_load_avg(struct sched_entity *se)
 	atomic_long_add(se->avg.util_avg, &cfs_rq->removed_util_avg);
 }
 
-static inline unsigned long cfs_rq_runnable_load_avg(struct cfs_rq *cfs_rq)
+static inline signed long cfs_rq_runnable_load_avg(struct cfs_rq *cfs_rq)
 {
 	return cfs_rq->runnable_load_avg;
 }
 
-static inline unsigned long cfs_rq_load_avg(struct cfs_rq *cfs_rq)
+static inline signed long cfs_rq_load_avg(struct cfs_rq *cfs_rq)
 {
 	return cfs_rq->avg.load_avg;
 }
@@ -3636,7 +3636,7 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
 
 	/* sleeps up to a single latency don't count. */
 	if (!initial) {
-		unsigned long thresh = sysctl_sched_latency;
+		signed long thresh = sysctl_sched_latency;
 
 		/*
 		 * Halve their sleep time's effect, to allow
@@ -3869,7 +3869,7 @@ dequeue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
 static void
 check_preempt_tick(struct cfs_rq *cfs_rq, struct sched_entity *curr)
 {
-	unsigned long ideal_runtime, delta_exec;
+	signed long ideal_runtime, delta_exec;
 	struct sched_entity *se;
 	s64 delta;
 
@@ -5008,8 +5008,8 @@ static inline void hrtick_update(struct rq *rq)
 #endif
 
 #ifdef CONFIG_SMP
-static unsigned long capacity_orig_of(int cpu);
-static unsigned long cpu_util(int cpu);
+static signed long capacity_orig_of(int cpu);
+static signed long cpu_util(int cpu);
 #endif
 
 /*
@@ -5202,7 +5202,7 @@ DEFINE_PER_CPU(cpumask_var_t, select_idle_mask);
 #ifdef CONFIG_SCHED_CORE_ROTATE
 static int rotate_cpu_start;
 static DEFINE_SPINLOCK(rotate_lock);
-static unsigned long avoid_prev_cpu_last;
+static signed long avoid_prev_cpu_last;
 
 static struct find_first_cpu_bit_env first_cpu_bit_env = {
 	.avoid_prev_cpu_last = &avoid_prev_cpu_last,
@@ -5255,8 +5255,8 @@ static const u8 degrade_factor[CPU_LOAD_IDX_MAX][DEGRADE_SHIFT + 1] = {
  * would be when CPU is idle and so we just decay the old load without
  * adding any new load.
  */
-static unsigned long
-decay_load_missed(unsigned long load, unsigned long missed_updates, int idx)
+static signed long
+decay_load_missed(signed long load, signed long missed_updates, int idx)
 {
 	int j = 0;
 
@@ -5315,10 +5315,10 @@ decay_load_missed(unsigned long load, unsigned long missed_updates, int idx)
  * see decay_load_misses(). For NOHZ_FULL we get to subtract and add the extra
  * term.
  */
-static void cpu_load_update(struct rq *this_rq, unsigned long this_load,
-			    unsigned long pending_updates)
+static void cpu_load_update(struct rq *this_rq, signed long this_load,
+			    signed long pending_updates)
 {
-	unsigned long __maybe_unused tickless_load = this_rq->cpu_load[0];
+	signed long __maybe_unused tickless_load = this_rq->cpu_load[0];
 	int i, scale;
 
 	this_rq->nr_load_updates++;
@@ -5326,7 +5326,7 @@ static void cpu_load_update(struct rq *this_rq, unsigned long this_load,
 	/* Update our load: */
 	this_rq->cpu_load[0] = this_load; /* Fasttrack for idx 0 */
 	for (i = 1, scale = 2; i < CPU_LOAD_IDX_MAX; i++, scale += scale) {
-		unsigned long old_load, new_load;
+		signed long old_load, new_load;
 
 		/* scale is effectively 1 << i now, and >> i divides by scale */
 
@@ -5359,7 +5359,7 @@ static void cpu_load_update(struct rq *this_rq, unsigned long this_load,
 }
 
 /* Used instead of source_load when we know the type == 0 */
-static unsigned long weighted_cpuload(const int cpu)
+static signed long weighted_cpuload(const int cpu)
 {
 	return cfs_rq_runnable_load_avg(&cpu_rq(cpu)->cfs);
 }
@@ -5380,10 +5380,10 @@ static unsigned long weighted_cpuload(const int cpu)
  */
 
 static void cpu_load_update_nohz(struct rq *this_rq,
-				 unsigned long curr_jiffies,
-				 unsigned long load)
+				 signed long curr_jiffies,
+				 signed long load)
 {
-	unsigned long pending_updates;
+	signed long pending_updates;
 
 	pending_updates = curr_jiffies - this_rq->last_load_update_tick;
 	if (pending_updates) {
@@ -5435,9 +5435,9 @@ void cpu_load_update_nohz_start(void)
  */
 void cpu_load_update_nohz_stop(void)
 {
-	unsigned long curr_jiffies = READ_ONCE(jiffies);
+	signed long curr_jiffies = READ_ONCE(jiffies);
 	struct rq *this_rq = this_rq();
-	unsigned long load;
+	signed long load;
 
 	if (curr_jiffies == this_rq->last_load_update_tick)
 		return;
@@ -5450,11 +5450,11 @@ void cpu_load_update_nohz_stop(void)
 }
 #else /* !CONFIG_NO_HZ_COMMON */
 static inline void cpu_load_update_nohz(struct rq *this_rq,
-					unsigned long curr_jiffies,
-					unsigned long load) { }
+					signed long curr_jiffies,
+					signed long load) { }
 #endif /* CONFIG_NO_HZ_COMMON */
 
-static void cpu_load_update_periodic(struct rq *this_rq, unsigned long load)
+static void cpu_load_update_periodic(struct rq *this_rq, signed long load)
 {
 #ifdef CONFIG_NO_HZ_COMMON
 	/* See the mess around cpu_load_update_nohz(). */
@@ -5468,7 +5468,7 @@ static void cpu_load_update_periodic(struct rq *this_rq, unsigned long load)
  */
 void cpu_load_update_active(struct rq *this_rq)
 {
-	unsigned long load = weighted_cpuload(cpu_of(this_rq));
+	signed long load = weighted_cpuload(cpu_of(this_rq));
 
 	if (tick_nohz_tick_stopped())
 		cpu_load_update_nohz(this_rq, READ_ONCE(jiffies), load);
@@ -5483,10 +5483,10 @@ void cpu_load_update_active(struct rq *this_rq)
  * We want to under-estimate the load of migration sources, to
  * balance conservatively.
  */
-static unsigned long source_load(int cpu, int type)
+static signed long source_load(int cpu, int type)
 {
 	struct rq *rq = cpu_rq(cpu);
-	unsigned long total = weighted_cpuload(cpu);
+	signed long total = weighted_cpuload(cpu);
 
 	if (type == 0 || !sched_feat(LB_BIAS))
 		return total;
@@ -5498,10 +5498,10 @@ static unsigned long source_load(int cpu, int type)
  * Return a high guess at the load of a migration-target cpu weighted
  * according to the scheduling class and "nice" value.
  */
-static unsigned long target_load(int cpu, int type)
+static signed long target_load(int cpu, int type)
 {
 	struct rq *rq = cpu_rq(cpu);
-	unsigned long total = weighted_cpuload(cpu);
+	signed long total = weighted_cpuload(cpu);
 
 	if (type == 0 || !sched_feat(LB_BIAS))
 		return total;
@@ -5510,11 +5510,11 @@ static unsigned long target_load(int cpu, int type)
 }
 
 
-static unsigned long cpu_avg_load_per_task(int cpu)
+static signed long cpu_avg_load_per_task(int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
-	unsigned long nr_running = READ_ONCE(rq->cfs.h_nr_running);
-	unsigned long load_avg = weighted_cpuload(cpu);
+	signed long nr_running = READ_ONCE(rq->cfs.h_nr_running);
+	signed long load_avg = weighted_cpuload(cpu);
 
 	if (nr_running)
 		return load_avg / nr_running;
@@ -5672,7 +5672,7 @@ bool sched_is_energy_aware(void)
  * Returns the current capacity of cpu after applying both
  * cpu and freq scaling.
  */
-unsigned long capacity_curr_of(int cpu)
+signed long capacity_curr_of(int cpu)
 {
 	return cpu_rq(cpu)->cpu_capacity_orig *
 	       arch_scale_freq_capacity(NULL, cpu)
@@ -5683,7 +5683,7 @@ unsigned long capacity_curr_of(int cpu)
  * Returns the current capacity of cpu after applying both
  * cpu and min freq scaling.
  */
-unsigned long capacity_min_of(int cpu)
+signed long capacity_min_of(int cpu)
 {
 	if (!sched_feat(MIN_CAPACITY_CAPPING))
 		return 0;
@@ -5735,7 +5735,7 @@ struct energy_env {
 		int	cap;
 
 		/* Estimated system energy */
-		unsigned int energy;
+		signed int energy;
 
 		/* Estimated energy variation wrt EAS_CPU_PRV */
 		int	nrg_delta;
@@ -5771,7 +5771,7 @@ static int cpu_util_wake(int cpu, struct task_struct *p);
  *
  *   norm_util = running_time/time ~ util/capacity
  */
-static unsigned long __cpu_norm_util(unsigned long util, unsigned long capacity)
+static signed long __cpu_norm_util(signed long util, signed long capacity)
 {
 	if (util >= capacity)
 		return SCHED_CAPACITY_SCALE;
@@ -5779,10 +5779,10 @@ static unsigned long __cpu_norm_util(unsigned long util, unsigned long capacity)
 	return (util << SCHED_CAPACITY_SHIFT)/capacity;
 }
 
-static unsigned long group_max_util(struct energy_env *eenv, int cpu_idx)
+static signed long group_max_util(struct energy_env *eenv, int cpu_idx)
 {
-	unsigned long max_util = 0;
-	unsigned long util;
+	signed long max_util = 0;
+	signed long util;
 	int cpu;
 
 	for_each_cpu(cpu, sched_group_cpus(eenv->sg_cap)) {
@@ -5822,11 +5822,11 @@ static unsigned long group_max_util(struct energy_env *eenv, int cpu_idx)
  * The latter estimate is used as it leads to a more pessimistic energy
  * estimate (more busy).
  */
-static unsigned
+static signed
 long group_norm_util(struct energy_env *eenv, int cpu_idx)
 {
-	unsigned long capacity = eenv->cpu[cpu_idx].cap;
-	unsigned long util, util_sum = 0;
+	signed long capacity = eenv->cpu[cpu_idx].cap;
+	signed long util, util_sum = 0;
 	int cpu;
 
 	for_each_cpu(cpu, sched_group_cpus(eenv->sg)) {
@@ -5843,14 +5843,14 @@ long group_norm_util(struct energy_env *eenv, int cpu_idx)
 		util_sum += __cpu_norm_util(util, capacity);
 	}
 
-	return min_t(unsigned long, util_sum, SCHED_CAPACITY_SCALE);
+	return min_t(signed long, util_sum, SCHED_CAPACITY_SCALE);
 }
 
 static int find_new_capacity(struct energy_env *eenv, int cpu_idx)
 {
 	const struct sched_group_energy *sge = eenv->sg->sge;
 	int idx, max_idx = sge->nr_cap_states - 1;
-	unsigned long util = group_max_util(eenv, cpu_idx);
+	signed long util = group_max_util(eenv, cpu_idx);
 
 	/* default is max_cap if we don't find a match */
 	eenv->cpu[cpu_idx].cap_idx = max_idx;
@@ -5952,9 +5952,9 @@ static int calc_sg_energy(struct energy_env *eenv)
 {
 	struct sched_group *sg = eenv->sg;
 	int busy_energy, idle_energy;
-	unsigned int busy_power;
-	unsigned int idle_power;
-	unsigned long sg_util;
+	signed int busy_power;
+	signed int idle_power;
+	signed long sg_util;
 	int cap_idx, idle_idx;
 	int total_energy = 0;
 	int cpu_idx;
@@ -6225,8 +6225,8 @@ static inline int select_energy_cpu_idx(struct energy_env *eenv)
  */
 static int wake_wide(struct task_struct *p, int sibling_count_hint)
 {
-	unsigned int master = current->wakee_flips;
-	unsigned int slave = p->wakee_flips;
+	signed int master = current->wakee_flips;
+	signed int slave = p->wakee_flips;
 	int llc_size = this_cpu_read(sd_llc_size);
 
 	if (sibling_count_hint >= llc_size)
@@ -6246,7 +6246,7 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p,
 	s64 this_eff_load, prev_eff_load;
 	int idx, this_cpu;
 	struct task_group *tg;
-	unsigned long weight;
+	signed long weight;
 	int balanced;
 
 	idx	  = sd->wake_idx;
@@ -6305,11 +6305,11 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p,
 	return 1;
 }
 
-static inline unsigned long boosted_task_util(struct task_struct *p);
+static inline signed long boosted_task_util(struct task_struct *p);
 
 static inline bool __task_fits(struct task_struct *p, int cpu, int util)
 {
-	unsigned int margin;
+	signed int margin;
 
 	util += boosted_task_util(p);
 
@@ -6323,9 +6323,9 @@ static inline bool __task_fits(struct task_struct *p, int cpu, int util)
 
 static inline bool task_fits_max(struct task_struct *p, int cpu)
 {
-	unsigned long capacity = capacity_orig_of(cpu);
-	unsigned long max_capacity = cpu_rq(cpu)->rd->max_cpu_capacity.val;
-	unsigned long task_boost = per_task_boost(p);
+	signed long capacity = capacity_orig_of(cpu);
+	signed long max_capacity = cpu_rq(cpu)->rd->max_cpu_capacity.val;
+	signed long task_boost = per_task_boost(p);
 
 	if (capacity == max_capacity)
 		return true;
@@ -6347,7 +6347,7 @@ static inline bool task_fits_max(struct task_struct *p, int cpu)
 }
 
 static inline bool cpu_check_overutil_condition(int cpu,
-						unsigned long util)
+						signed long util)
 {
 	return (capacity_orig_of(cpu) * 1024) < (util * capacity_margin);
 }
@@ -6368,7 +6368,7 @@ bool cpu_overutilized(int cpu)
 struct reciprocal_value schedtune_spc_rdiv;
 
 static long
-schedtune_margin(unsigned long signal, long boost)
+schedtune_margin(signed long signal, long boost)
 {
 	long long margin = 0;
 
@@ -6395,7 +6395,7 @@ schedtune_margin(unsigned long signal, long boost)
 }
 
 static inline int
-schedtune_cpu_margin(unsigned long util, int cpu)
+schedtune_cpu_margin(signed long util, int cpu)
 {
 	int boost = schedtune_cpu_boost(cpu);
 
@@ -6409,7 +6409,7 @@ static inline long
 schedtune_task_margin(struct task_struct *p)
 {
 	int boost = schedtune_task_boost(p);
-	unsigned long util;
+	signed long util;
 	long margin;
 
 	if (boost == 0)
@@ -6424,7 +6424,7 @@ schedtune_task_margin(struct task_struct *p)
 #else /* CONFIG_SCHED_TUNE */
 
 static inline int
-schedtune_cpu_margin(unsigned long util, int cpu)
+schedtune_cpu_margin(signed long util, int cpu)
 {
 	return 0;
 }
@@ -6437,10 +6437,10 @@ schedtune_task_margin(struct task_struct *p)
 
 #endif /* CONFIG_SCHED_TUNE */
 
-unsigned long
+signed long
 boosted_cpu_util(int cpu, struct sched_walt_cpu_load *walt_load)
 {
-	unsigned long util = cpu_util_freq(cpu, walt_load);
+	signed long util = cpu_util_freq(cpu, walt_load);
 	long margin = schedtune_cpu_margin(util, cpu);
 
 	trace_sched_boost_cpu(cpu, util, margin);
@@ -6448,10 +6448,10 @@ boosted_cpu_util(int cpu, struct sched_walt_cpu_load *walt_load)
 	return util + margin;
 }
 
-static inline unsigned long
+static inline signed long
 boosted_task_util(struct task_struct *p)
 {
-	unsigned long util = task_util(p);
+	signed long util = task_util(p);
 	long margin = schedtune_task_margin(p);
 
 	trace_sched_boost_task(p, util, margin);
@@ -6459,7 +6459,7 @@ boosted_task_util(struct task_struct *p)
 	return util + margin;
 }
 
-static unsigned long capacity_spare_wake(int cpu, struct task_struct *p)
+static signed long capacity_spare_wake(int cpu, struct task_struct *p)
 {
 	return max_t(long, capacity_of(cpu) - cpu_util_wake(cpu, p), 0);
 }
@@ -6476,21 +6476,21 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
 {
 	struct sched_group *idlest = NULL, *group = sd->groups;
 	struct sched_group *most_spare_sg = NULL;
-	unsigned long min_runnable_load = ULONG_MAX;
-	unsigned long this_runnable_load = ULONG_MAX;
-	unsigned long min_avg_load = ULONG_MAX, this_avg_load = ULONG_MAX;
-	unsigned long most_spare = 0, this_spare = 0;
+	signed long min_runnable_load = ULONG_MAX;
+	signed long this_runnable_load = ULONG_MAX;
+	signed long min_avg_load = ULONG_MAX, this_avg_load = ULONG_MAX;
+	signed long most_spare = 0, this_spare = 0;
 	int load_idx = sd->forkexec_idx;
 	int imbalance_scale = 100 + (sd->imbalance_pct-100)/2;
-	unsigned long imbalance = scale_load_down(NICE_0_LOAD) *
+	signed long imbalance = scale_load_down(NICE_0_LOAD) *
 				(sd->imbalance_pct-100) / 100;
 
 	if (sd_flag & SD_BALANCE_WAKE)
 		load_idx = sd->wake_idx;
 
 	do {
-		unsigned long load, avg_load, runnable_load;
-		unsigned long spare_cap, max_spare_cap;
+		signed long load, avg_load, runnable_load;
+		signed long spare_cap, max_spare_cap;
 		int local_group;
 		int i;
 
@@ -6597,8 +6597,8 @@ skip_spare:
 static int
 find_idlest_group_cpu(struct sched_group *group, struct task_struct *p, int this_cpu)
 {
-	unsigned long load, min_load = ULONG_MAX;
-	unsigned int min_exit_latency = UINT_MAX;
+	signed long load, min_load = ULONG_MAX;
+	signed int min_exit_latency = UINT_MAX;
 	u64 latest_idle_timestamp = 0;
 	int least_loaded_cpu = this_cpu;
 	int shallowest_idle_cpu = -1;
@@ -6877,7 +6877,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 	int i = task_cpu(p),  recent_used_cpu;
 	int best_idle_cpu = -1;
 	int best_idle_cstate = INT_MAX;
-	unsigned long best_idle_capacity = ULONG_MAX;
+	signed long best_idle_capacity = ULONG_MAX;
 
 	schedstat_inc(p->se.statistics.nr_wakeups_sis_attempts);
 	schedstat_inc(this_rq()->eas_stats.sis_attempts);
@@ -6919,15 +6919,15 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 			return target;
 
 		i = select_idle_core(p, sd, target);
-		if ((unsigned)i < nr_cpumask_bits)
+		if ((signed)i < nr_cpumask_bits)
 			return i;
 
 		i = select_idle_cpu(p, sd, target);
-		if ((unsigned)i < nr_cpumask_bits)
+		if ((signed)i < nr_cpumask_bits)
 			return i;
 
 		i = select_idle_smt(p, sd, target);
-		if ((unsigned)i < nr_cpumask_bits)
+		if ((signed)i < nr_cpumask_bits)
 			return i;
 	}
 
@@ -6946,8 +6946,8 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 			if (sysctl_sched_cstate_aware) {
 				for_each_cpu_and(i, tsk_cpus_allowed(p), sched_group_cpus(sg)) {
 					int idle_idx = idle_get_state_idx(cpu_rq(i));
-					unsigned long new_usage = boosted_task_util(p);
-					unsigned long capacity_orig = capacity_orig_of(i);
+					signed long new_usage = boosted_task_util(p);
+					signed long capacity_orig = capacity_orig_of(i);
 
 					if (new_usage > capacity_orig || !idle_cpu(i))
 						goto next;
@@ -7002,7 +7002,7 @@ done:
  */
 static int cpu_util_wake(int cpu, struct task_struct *p)
 {
-	unsigned long util, capacity;
+	signed long util, capacity;
 
 #ifdef CONFIG_SCHED_WALT
 	/*
@@ -7034,10 +7034,10 @@ struct find_best_target_env {
 };
 
 #ifdef CONFIG_SCHED_WALT
-static unsigned long cpu_estimated_capacity(int cpu, struct task_struct *p)
+static signed long cpu_estimated_capacity(int cpu, struct task_struct *p)
 {
-	unsigned long tutil, estimated_capacity;
-	unsigned long task_boost = per_task_boost(p);
+	signed long tutil, estimated_capacity;
+	signed long task_boost = per_task_boost(p);
 
 	if (task_in_cum_window_demand(cpu_rq(cpu), p))
 		tutil = 0;
@@ -7049,7 +7049,7 @@ static unsigned long cpu_estimated_capacity(int cpu, struct task_struct *p)
 	return estimated_capacity;
 }
 #else
-static unsigned long cpu_estimated_capacity(int cpu, struct task_struct *p)
+static signed long cpu_estimated_capacity(int cpu, struct task_struct *p)
 {
 	return cpu_util_wake(cpu, p);
 }
@@ -7057,10 +7057,10 @@ static unsigned long cpu_estimated_capacity(int cpu, struct task_struct *p)
 
 static bool is_packing_eligible(struct task_struct *p, int target_cpu,
 				struct find_best_target_env *fbt_env,
-				unsigned int target_cpus_count,
+				signed int target_cpus_count,
 				int best_idle_cstate)
 {
-	unsigned long estimated_capacity;
+	signed long estimated_capacity;
 
 	if (fbt_env->placement_boost || fbt_env->need_idle)
 		return false;
@@ -7110,19 +7110,19 @@ static int start_cpu(struct task_struct *p, bool boosted,
 	return walt_start_cpu(start_cpu);
 }
 
-unsigned int sched_smp_overlap_capacity;
+signed int sched_smp_overlap_capacity;
 
 static inline int find_best_target(struct task_struct *p, int *backup_cpu,
 				   bool boosted, bool prefer_idle,
 				   struct find_best_target_env *fbt_env)
 {
-	unsigned long min_util = boosted_task_util(p);
-	unsigned long target_capacity = ULONG_MAX;
-	unsigned long min_wake_util = ULONG_MAX;
-	unsigned long target_max_spare_cap = 0;
-	unsigned long target_util = ULONG_MAX;
-	unsigned long best_active_util = ULONG_MAX;
-	unsigned long target_idle_max_spare_cap = 0;
+	signed long min_util = boosted_task_util(p);
+	signed long target_capacity = ULONG_MAX;
+	signed long min_wake_util = ULONG_MAX;
+	signed long target_max_spare_cap = 0;
+	signed long target_util = ULONG_MAX;
+	signed long best_active_util = ULONG_MAX;
+	signed long target_idle_max_spare_cap = 0;
 	int best_idle_cstate = INT_MAX;
 	struct sched_domain *sd;
 	struct sched_group *sg;
@@ -7132,7 +7132,7 @@ static inline int find_best_target(struct task_struct *p, int *backup_cpu,
 	int cpu, i;
 	long spare_cap, most_spare_cap = 0;
 	int most_spare_cap_cpu = -1;
-	unsigned int active_cpus_count = 0;
+	signed int active_cpus_count = 0;
 	int isolated_candidate = -1;
 	int prev_cpu = task_cpu(p);
 
@@ -7172,9 +7172,9 @@ static inline int find_best_target(struct task_struct *p, int *backup_cpu,
 
 retry:
 		while ((i = cpumask_next(i, &search_cpus)) < nr_cpu_ids) {
-			unsigned long capacity_curr = capacity_curr_of(i);
-			unsigned long capacity_orig = capacity_orig_of(i);
-			unsigned long wake_util, new_util, min_capped_util;
+			signed long capacity_curr = capacity_curr_of(i);
+			signed long capacity_orig = capacity_orig_of(i);
+			signed long wake_util, new_util, min_capped_util;
 
 			cpumask_clear_cpu(i, &search_cpus);
 
@@ -7943,10 +7943,10 @@ static void task_dead_fair(struct task_struct *p)
 #define task_fits_max(p, cpu) true
 #endif /* CONFIG_SMP */
 
-static unsigned long
+static signed long
 wakeup_gran(struct sched_entity *curr, struct sched_entity *se)
 {
-	unsigned long gran = sysctl_sched_wakeup_granularity;
+	signed long gran = sysctl_sched_wakeup_granularity;
 
 	/*
 	 * Since its curr running now, convert the gran from real-time
@@ -8424,7 +8424,7 @@ static bool yield_to_task_fair(struct rq *rq, struct task_struct *p, bool preemp
  *      rewrite all of this once again.]
  */
 
-static unsigned long __read_mostly max_load_balance_interval = HZ/10;
+static signed long __read_mostly max_load_balance_interval = HZ/10;
 
 enum fbq_type { regular, remote, all };
 
@@ -8457,17 +8457,17 @@ struct lb_env {
 	int			new_dst_cpu;
 	enum cpu_idle_type	idle;
 	long			imbalance;
-	unsigned int		src_grp_nr_running;
+	signed int		src_grp_nr_running;
 	/* The set of CPUs under consideration for load-balancing */
 	struct cpumask		*cpus;
-	unsigned int		busiest_grp_capacity;
-	unsigned int		busiest_nr_running;
+	signed int		busiest_grp_capacity;
+	signed int		busiest_nr_running;
 
-	unsigned int		flags;
+	signed int		flags;
 
-	unsigned int		loop;
-	unsigned int		loop_break;
-	unsigned int		loop_max;
+	signed int		loop;
+	signed int		loop_break;
+	signed int		loop_max;
 
 	enum fbq_type		fbq_type;
 	enum group_type		busiest_group_type;
@@ -8516,7 +8516,7 @@ static int task_hot(struct task_struct *p, struct lb_env *env)
 static int migrate_degrades_locality(struct task_struct *p, struct lb_env *env)
 {
 	struct numa_group *numa_group = rcu_dereference(p->numa_group);
-	unsigned long src_faults, dst_faults;
+	signed long src_faults, dst_faults;
 	int src_nid, dst_nid;
 
 	if (!static_branch_likely(&sched_numa_balancing))
@@ -8619,7 +8619,7 @@ int can_migrate_task(struct task_struct *p, struct lb_env *env)
 	    env->idle == CPU_NEWLY_IDLE &&
 	    !task_in_related_thread_group(p)) {
 		long util_cum_dst, util_cum_src;
-		unsigned long demand;
+		signed long demand;
 
 		demand = task_util(p);
 		util_cum_dst = cpu_util_cum(env->dst_cpu, 0) + demand;
@@ -8715,7 +8715,7 @@ static struct task_struct *detach_one_task(struct lb_env *env)
 	return NULL;
 }
 
-static const unsigned int sched_nr_migrate_break = 32;
+static const signed int sched_nr_migrate_break = 32;
 
 /*
  * detach_tasks() -- tries to detach up to imbalance weighted load from
@@ -8727,7 +8727,7 @@ static int detach_tasks(struct lb_env *env)
 {
 	struct list_head *tasks = &env->src_rq->cfs_tasks;
 	struct task_struct *p;
-	unsigned long load;
+	signed long load;
 	int detached = 0;
 	int orig_loop = env->loop;
 
@@ -8775,7 +8775,7 @@ redo:
 		 * otherwise detach_tasks() will stop only after
 		 * detaching up to loop_max tasks.
 		 */
-		load = max_t(unsigned long, task_h_load(p), 1);
+		load = max_t(signed long, task_h_load(p), 1);
 
 
 		if (sched_feat(LB_MIN) && load < 16 && !env->sd->nr_balance_failed)
@@ -8891,7 +8891,7 @@ static void update_blocked_averages(int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
 	struct cfs_rq *cfs_rq;
-	unsigned long flags;
+	signed long flags;
 
 	raw_spin_lock_irqsave(&rq->lock, flags);
 	update_rq_clock(rq);
@@ -8927,8 +8927,8 @@ static void update_cfs_rq_h_load(struct cfs_rq *cfs_rq)
 {
 	struct rq *rq = rq_of(cfs_rq);
 	struct sched_entity *se = cfs_rq->tg->se[cpu_of(rq)];
-	unsigned long now = jiffies;
-	unsigned long load;
+	signed long now = jiffies;
+	signed long load;
 
 	if (cfs_rq->last_h_load_update == now)
 		return;
@@ -8956,7 +8956,7 @@ static void update_cfs_rq_h_load(struct cfs_rq *cfs_rq)
 	}
 }
 
-static unsigned long task_h_load(struct task_struct *p)
+static signed long task_h_load(struct task_struct *p)
 {
 	struct cfs_rq *cfs_rq = task_cfs_rq(p);
 
@@ -8969,7 +8969,7 @@ static inline void update_blocked_averages(int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
 	struct cfs_rq *cfs_rq = &rq->cfs;
-	unsigned long flags;
+	signed long flags;
 
 	raw_spin_lock_irqsave(&rq->lock, flags);
 	update_rq_clock(rq);
@@ -8977,7 +8977,7 @@ static inline void update_blocked_averages(int cpu)
 	raw_spin_unlock_irqrestore(&rq->lock, flags);
 }
 
-static unsigned long task_h_load(struct task_struct *p)
+static signed long task_h_load(struct task_struct *p)
 {
 	return p->se.avg.load_avg;
 }
@@ -8989,21 +8989,21 @@ static unsigned long task_h_load(struct task_struct *p)
  * sg_lb_stats - stats of a sched_group required for load_balancing
  */
 struct sg_lb_stats {
-	unsigned long avg_load; /*Avg load across the CPUs of the group */
-	unsigned long group_load; /* Total load over the CPUs of the group */
-	unsigned long sum_weighted_load; /* Weighted load of group's tasks */
-	unsigned long load_per_task;
-	unsigned long group_capacity;
-	unsigned long group_util; /* Total utilization of the group */
-	unsigned int sum_nr_running; /* Nr tasks running in the group */
-	unsigned int idle_cpus;
-	unsigned int group_weight;
+	signed long avg_load; /*Avg load across the CPUs of the group */
+	signed long group_load; /* Total load over the CPUs of the group */
+	signed long sum_weighted_load; /* Weighted load of group's tasks */
+	signed long load_per_task;
+	signed long group_capacity;
+	signed long group_util; /* Total utilization of the group */
+	signed int sum_nr_running; /* Nr tasks running in the group */
+	signed int idle_cpus;
+	signed int group_weight;
 	enum group_type group_type;
 	int group_no_capacity;
 	int group_misfit_task; /* A cpu has a task too big for its capacity */
 #ifdef CONFIG_NUMA_BALANCING
-	unsigned int nr_numa_running;
-	unsigned int nr_preferred_running;
+	signed int nr_numa_running;
+	signed int nr_preferred_running;
 #endif
 };
 
@@ -9014,9 +9014,9 @@ struct sg_lb_stats {
 struct sd_lb_stats {
 	struct sched_group *busiest;	/* Busiest group in this sd */
 	struct sched_group *local;	/* Local group in this sd */
-	unsigned long total_load;	/* Total load of all groups in sd */
-	unsigned long total_capacity;	/* Total capacity of all groups in sd */
-	unsigned long avg_load;	/* Average load across all groups in sd */
+	signed long total_load;	/* Total load of all groups in sd */
+	signed long total_capacity;	/* Total capacity of all groups in sd */
+	signed long avg_load;	/* Average load across all groups in sd */
 
 	struct sg_lb_stats busiest_stat;/* Statistics of the busiest group */
 	struct sg_lb_stats local_stat;	/* Statistics of the local group */
@@ -9071,7 +9071,7 @@ static inline int get_sd_load_idx(struct sched_domain *sd,
 	return load_idx;
 }
 
-static unsigned long scale_rt_capacity(int cpu)
+static signed long scale_rt_capacity(int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
 	u64 total, used, age_stamp, avg;
@@ -9107,7 +9107,7 @@ void init_max_cpu_capacity(struct max_cpu_capacity *mcc)
 
 static void update_cpu_capacity(struct sched_domain *sd, int cpu)
 {
-	unsigned long capacity = arch_scale_cpu_capacity(sd, cpu);
+	signed long capacity = arch_scale_cpu_capacity(sd, cpu);
 	struct sched_group *sdg = sd->groups;
 
 	capacity *= arch_scale_max_freq_capacity(sd, cpu);
@@ -9135,8 +9135,8 @@ void update_group_capacity(struct sched_domain *sd, int cpu)
 {
 	struct sched_domain *child = sd->child;
 	struct sched_group *group, *sdg = sd->groups;
-	unsigned long capacity, max_capacity, min_capacity;
-	unsigned long interval;
+	signed long capacity, max_capacity, min_capacity;
+	signed long interval;
 
 	interval = msecs_to_jiffies(sd->balance_interval);
 	interval = clamp(interval, 1UL, max_load_balance_interval);
@@ -9345,7 +9345,7 @@ group_type group_classify(struct sched_group *group,
 static struct {
 	cpumask_var_t idle_cpus_mask;
 	atomic_t nr_cpus;
-	unsigned long next_balance;     /* in jiffy units */
+	signed long next_balance;     /* in jiffy units */
 } nohz ____cacheline_aligned;
 
 static inline void update_cpu_stats_if_tickless(struct rq *rq)
@@ -9383,7 +9383,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 			int local_group, struct sg_lb_stats *sgs,
 			bool *overload, bool *overutilized)
 {
-	unsigned long load;
+	signed long load;
 	int i, nr_running;
 
 	memset(sgs, 0, sizeof(*sgs));
@@ -9732,9 +9732,9 @@ static int check_asym_packing(struct lb_env *env, struct sd_lb_stats *sds)
 static inline
 void fix_small_imbalance(struct lb_env *env, struct sd_lb_stats *sds)
 {
-	unsigned long tmp, capa_now = 0, capa_move = 0;
-	unsigned int imbn = 2;
-	unsigned long scaled_busy_load_per_task;
+	signed long tmp, capa_now = 0, capa_move = 0;
+	signed int imbn = 2;
+	signed long scaled_busy_load_per_task;
 	struct sg_lb_stats *local, *busiest;
 
 	local = &sds->local_stat;
@@ -9800,7 +9800,7 @@ void fix_small_imbalance(struct lb_env *env, struct sd_lb_stats *sds)
  */
 static inline void calculate_imbalance(struct lb_env *env, struct sd_lb_stats *sds)
 {
-	unsigned long max_pull, load_above_capacity = ~0UL;
+	signed long max_pull, load_above_capacity = ~0UL;
 	struct sg_lb_stats *local, *busiest;
 
 	local = &sds->local_stat;
@@ -9930,7 +9930,7 @@ static struct sched_group *find_busiest_group(struct lb_env *env)
 
 	if (energy_aware() && !env->dst_rq->rd->overutilized) {
 		int cpu_local, cpu_busiest;
-		unsigned long energy_local, energy_busiest;
+		signed long energy_local, energy_busiest;
 
 		if (env->idle != CPU_NEWLY_IDLE)
 			goto out_balanced;
@@ -10044,11 +10044,11 @@ static struct rq *find_busiest_queue(struct lb_env *env,
 				     struct sched_group *group)
 {
 	struct rq *busiest = NULL, *rq;
-	unsigned long busiest_load = 0, busiest_capacity = 1;
+	signed long busiest_load = 0, busiest_capacity = 1;
 	int i;
 
 	for_each_cpu_and(i, sched_group_cpus(group), env->cpus) {
-		unsigned long capacity, wl;
+		signed long capacity, wl;
 		enum fbq_type rt;
 
 		rq = cpu_rq(i);
@@ -10248,7 +10248,7 @@ static int load_balance(int this_cpu, struct rq *this_rq,
 	struct sched_domain *sd_parent = sd->parent;
 	struct sched_group *group = NULL;
 	struct rq *busiest = NULL;
-	unsigned long flags;
+	signed long flags;
 	struct cpumask *cpus = this_cpu_cpumask_var_ptr(load_balance_mask);
 
 	struct lb_env env = {
@@ -10549,10 +10549,10 @@ out:
 	return ld_moved;
 }
 
-static inline unsigned long
+static inline signed long
 get_sd_balance_interval(struct sched_domain *sd, int cpu_busy)
 {
-	unsigned long interval = sd->balance_interval;
+	signed long interval = sd->balance_interval;
 
 	if (cpu_busy)
 		interval *= sd->busy_factor;
@@ -10565,9 +10565,9 @@ get_sd_balance_interval(struct sched_domain *sd, int cpu_busy)
 }
 
 static inline void
-update_next_balance(struct sched_domain *sd, unsigned long *next_balance)
+update_next_balance(struct sched_domain *sd, signed long *next_balance)
 {
-	unsigned long interval, next;
+	signed long interval, next;
 
 	/* used by idle balance, so cpu_busy = 0 */
 	interval = get_sd_balance_interval(sd, 0);
@@ -10604,7 +10604,7 @@ static inline bool min_cap_cluster_has_misfit_task(void)
  */
 static int idle_balance(struct rq *this_rq)
 {
-	unsigned long next_balance = jiffies + HZ;
+	signed long next_balance = jiffies + HZ;
 	int this_cpu = this_rq->cpu;
 	struct sched_domain *sd;
 	int pulled_task = 0;
@@ -10904,7 +10904,7 @@ static void nohz_balancer_kick(int type)
 	return;
 }
 
-void nohz_balance_exit_idle(unsigned int cpu)
+void nohz_balance_exit_idle(signed int cpu)
 {
 	if (unlikely(test_bit(NOHZ_TICK_STOPPED, nohz_flags(cpu)))) {
 		/*
@@ -10988,7 +10988,7 @@ static DEFINE_SPINLOCK(balancing);
 void update_max_interval(void)
 {
 	cpumask_t avail_mask;
-	unsigned int available_cpus;
+	signed int available_cpus;
 
 	cpumask_andnot(&avail_mask, cpu_online_mask, cpu_isolated_mask);
 	available_cpus = cpumask_weight(&avail_mask);
@@ -11006,10 +11006,10 @@ static void rebalance_domains(struct rq *rq, enum cpu_idle_type idle)
 {
 	int continue_balancing = 1;
 	int cpu = rq->cpu;
-	unsigned long interval;
+	signed long interval;
 	struct sched_domain *sd;
 	/* Earliest time when we have to do rebalance again */
-	unsigned long next_balance = jiffies + 60*HZ;
+	signed long next_balance = jiffies + 60*HZ;
 	int update_next_balance = 0;
 	int need_serialize, need_decay = 0;
 	u64 max_cost = 0;
@@ -11116,7 +11116,7 @@ static void nohz_idle_balance(struct rq *this_rq, enum cpu_idle_type idle)
 	struct rq *rq;
 	int balance_cpu;
 	/* Earliest time when we have to do rebalance again */
-	unsigned long next_balance = jiffies + 60*HZ;
+	signed long next_balance = jiffies + 60*HZ;
 	int update_next_balance = 0;
 	cpumask_t cpus;
 
@@ -11182,7 +11182,7 @@ end:
  */
 static inline bool nohz_kick_needed(struct rq *rq, int *type)
 {
-	unsigned long now = jiffies;
+	signed long now = jiffies;
 	struct sched_domain_shared *sds;
 	struct sched_domain *sd;
 	int nr_busy;
@@ -11704,7 +11704,7 @@ void online_fair_sched_group(struct task_group *tg)
 
 void unregister_fair_sched_group(struct task_group *tg)
 {
-	unsigned long flags;
+	signed long flags;
 	struct rq *rq;
 	int cpu;
 
@@ -11760,10 +11760,10 @@ void init_tg_cfs_entry(struct task_group *tg, struct cfs_rq *cfs_rq,
 
 static DEFINE_MUTEX(shares_mutex);
 
-int sched_group_set_shares(struct task_group *tg, unsigned long shares)
+int sched_group_set_shares(struct task_group *tg, signed long shares)
 {
 	int i;
-	unsigned long flags;
+	signed long flags;
 
 	/*
 	 * We can't change the weight of the root cgroup.
@@ -11815,10 +11815,10 @@ void unregister_fair_sched_group(struct task_group *tg) { }
 #endif /* CONFIG_FAIR_GROUP_SCHED */
 
 
-static unsigned int get_rr_interval_fair(struct rq *rq, struct task_struct *task)
+static signed int get_rr_interval_fair(struct rq *rq, struct task_struct *task)
 {
 	struct sched_entity *se = &task->se;
-	unsigned int rr_interval = 0;
+	signed int rr_interval = 0;
 
 	/*
 	 * Time slice is 0 for SCHED_OTHER tasks that are on an otherwise
@@ -11893,7 +11893,7 @@ void print_cfs_stats(struct seq_file *m, int cpu)
 void show_numa_stats(struct task_struct *p, struct seq_file *m)
 {
 	int node;
-	unsigned long tsf = 0, tpf = 0, gsf = 0, gpf = 0;
+	signed long tsf = 0, tpf = 0, gsf = 0, gpf = 0;
 
 	for_each_online_node(node) {
 		if (p->numa_faults) {
@@ -12084,7 +12084,7 @@ static int task_will_be_throttled(struct task_struct *p)
 static inline int
 kick_active_balance(struct rq *rq, struct task_struct *p, int new_cpu)
 {
-	unsigned long flags;
+	signed long flags;
 	int rc = 0;
 
 	/* Invoke active balance to force migrate currently running task */
