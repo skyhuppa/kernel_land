@@ -272,7 +272,7 @@ static inline int ion_share_dma_buf(struct ion_client *client,
 	return -ENODEV;
 }
 
-static inline struct ion_handle *ion_import_dma_buf(struct ion_client *client,
+static inline struct ion_handle *ion_import_dma_buf_fd(struct ion_client *client,
 						    int fd)
 {
 	return ERR_PTR(-ENODEV);
