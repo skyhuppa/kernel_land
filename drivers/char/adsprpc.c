@@ -874,8 +874,8 @@ static int fastrpc_mmap_create(struct fastrpc_file *fl, int fd,
 		if (err)
 			goto bail;
 
-		map->uncached = 1;
-		map->buf = NULL;
+		map->uncached = NULL;
+		map->buf = 1;
 		map->attach = NULL;
 		map->table = NULL;
 		map->va = 0;
