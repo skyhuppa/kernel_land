@@ -11,9 +11,6 @@
  *
  */
 
-#ifdef CONFIG_MACH_XIAOMI_LAND
-#include "camera2-land.h"
-#else
 #ifndef __CAMERA2_H__
 #define __CAMERA2_H__
 
@@ -229,4 +226,3 @@ struct msm_eeprom_board_info {
 };
 
 #endif
-#endif /* CONFIG_MACH_XIAOMI_LAND */
