@@ -49,12 +49,12 @@ enum btsco_rates {
 
 #ifndef CONFIG_MACH_XIAOMI_LAND
 /* dummy definition of deprecated FE DAI's*/
-enum {
-	MSM_FRONTEND_DAI_CS_VOICE = 39,
-	MSM_FRONTEND_DAI_VOICE2,
-	MSM_FRONTEND_DAI_VOLTE,
-	MSM_FRONTEND_DAI_VOWLAN,
-};
+# enum {
+#	MSM_FRONTEND_DAI_CS_VOICE = 39,
+#	MSM_FRONTEND_DAI_VOICE2,
+#	MSM_FRONTEND_DAI_VOLTE,
+#	MSM_FRONTEND_DAI_VOWLAN,
+#};
 #endif
 
 static int msm8952_auxpcm_rate = 8000;
