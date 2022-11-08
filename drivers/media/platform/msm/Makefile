@@ -11,8 +11,8 @@ obj-$(CONFIG_SPECTRA_CAMERA) += camera_v3/
 else
 obj-$(CONFIG_SPECTRA_CAMERA) += camera/
 endif
-ifeq ($(CONFIG_MACH_XIAOMI_LAND),y)
-obj-$(CONFIG_MSMB_CAMERA) += camera_v2-land/
+ifeq ($(CONFIG_MACH_INFINIX_X573),y)
+obj-$(CONFIG_MSMB_CAMERA) += camera_v2-X573/
 else
 obj-$(CONFIG_MSMB_CAMERA) += camera_v2/
 endif
