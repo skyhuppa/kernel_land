@@ -1,17 +1,17 @@
-# Xiaomi configuration options
+# Infinix configuration options
 
-config MACH_XIAOMI_MSM8937
-	bool "Xiaomi MSM8937"
+config MACH_INFINIX_MSM8937
+	bool "Infinix MSM8937"
 	depends on ARCH_MSM8937
 	help
-	  Support for MSM8937 Xiaomi variants
+	  Support for MSM8937 Infinix variants
 
-menu "Xiaomi board selection"
+menu "Infinix board selection"
 
-config MACH_XIAOMI_LAND
-	bool "Land board"
-	select MACH_XIAOMI_MSM8937
+config MACH_INFINIX_X573
+	bool "X573 board"
+	select MACH_INFINIX_MSM8937
 	help
-	  Support for Redmi 3S/3X
+	  Support for Infinix Hot S3
 
 endmenu
