@@ -49,8 +49,8 @@ config MSMB_CAMERA_DEBUG
 
 if MSMB_CAMERA
 source "drivers/media/platform/msm/camera_v2/Kconfig"
-if CONFIG_MACH_XIAOMI_LAND
-source "drivers/media/platform/msm/camera_v2-land/Kconfig"
+if CONFIG_MACH_INFINIX_X573
+source "drivers/media/platform/msm/camera_v2-X573/Kconfig"
 endif
 endif # MSMB_CAMERA
 
