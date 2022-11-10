@@ -870,7 +870,7 @@ static int fastrpc_mmap_create(struct fastrpc_file *fl, int fd,
 		ion_phys_addr_t iphys;
 
 		VERIFY(err, !IS_ERR_OR_NULL(map->handle =
-				*ion_import_dma_buf_fd(fl->apps->client, fd)));
+				*ion_import_dma_buf_fd(fl->apps->client, int fd)));
 		if (err)
 			goto bail;
 
@@ -893,7 +893,7 @@ static int fastrpc_mmap_create(struct fastrpc_file *fl, int fd,
 			map->refs = 2;
 		}
 		VERIFY(err, !IS_ERR_OR_NULL(map->handle =
-                                *ion_import_dma_buf_fd(fl->apps->client, fd)));
+                                ion_import_dma_buf_fd(fl->apps->client, fd)));
 		if (err)
 			goto bail;
 		VERIFY(err, !ion_handle_get_flags(fl->apps->client, map->handle,
